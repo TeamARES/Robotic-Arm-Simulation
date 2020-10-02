@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import roslib
+import json
 import rospy
 try:
     import readline
@@ -90,11 +91,21 @@ def get_context_keywords(interpreter):
     kw["quit"] = []
     return kw
 
-def inverse_kinematics(x,y,z):
-    print("ik called and recieve",x,y,z)
-    joints = [-0.700616955251,0.625436249431,0.803696786531,-0.625963150291,0.726676572042]
+def inverse_kinematics(x,y,z,msg):
+    ## msg contains the current state
+    x_pos = msg[msg.find("x:"):msg.find("x:")+10]
+    y_pos = msg[msg.find("y:"):msg.find("y:")+10]
+    z_pos = msg[msg.find("z:"):msg.find("z:")+10]
+    msg = msg[msg.find("orientation:"):msg.find("finger RPY")]
+    x_or = msg[msg.find("x:"):msg.find("x:")+10]
+    y_or = msg[msg.find("y:"):msg.find("y:")+10]
+    z_or = msg[msg.find("z:"):msg.find("z:")+10]
+    print(x_pos,y_pos,z_pos)
+    print(x_or,y_or,z_or)
+    '''inverse kinematics here'''
+    joints = [-0.700533578251,0.625473578591,0.803702729791,-0.625889441543,0.726719896371]
     return joints
-
+    
 def run_interactive(group_name):
     c = MoveGroupCommandInterpreter()
     if len(group_name) > 0:
@@ -132,17 +143,25 @@ def run_interactive(group_name):
         if(cmdorig == "ik"):
          print("Give the x y z inputs")
          x,y,z = raw_input().split(' ')
-         joints = inverse_kinematics(x, y, z)
+         ''' call inverse kinematics and get current state'''
+         cmdorig = "current"
+         (level, msg) = c.execute(cmdorig)
+         completer.set_options(get_context_keywords(c))
+         joints = inverse_kinematics(x, y, z,msg)
+
+
          ## rec c
          cmdorig = "rec c"
          (level, msg) = c.execute(cmdorig)
          print_message(level, msg)
          completer.set_options(get_context_keywords(c))
+
          ## goal = c
          cmdorig = "goal = c"
          (level, msg) = c.execute(cmdorig)
          print_message(level, msg)
          completer.set_options(get_context_keywords(c))
+
          ## setting joints
          for i in range(0,len(joints)):
           print("goal",i)
@@ -150,6 +169,7 @@ def run_interactive(group_name):
           (level, msg) = c.execute(cmdorig)
           print_message(level, msg)
           completer.set_options(get_context_keywords(c))
+
          ## finally execute
          cmdorig = "go goal"
          (level, msg) = c.execute(cmdorig)
