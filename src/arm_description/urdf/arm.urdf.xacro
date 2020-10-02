@@ -14,10 +14,10 @@
   <xacro:property name="joint_length" value="0.025"/>
   <xacro:property name="toe_length" value="0.03"/>
   <xacro:property name="foot_length" value="0.04"/>
-  <xacro:property name="leg_length" value="0.40"/>
-  <xacro:property name="arm_length" value="0.30"/>
-  <xacro:property name="hand_length" value="0.04"/>
-  <xacro:property name="finger_length" value="0.03"/>
+  <xacro:property name="leg_length" value="0.50"/>
+  <xacro:property name="arm_length" value="0.50"/>
+  <xacro:property name="hand_length" value="0.05"/>
+  <xacro:property name="finger_length" value="0.08"/>
 
   <!-- Materials -->
   <material name="orange">
@@ -80,7 +80,7 @@
   </xacro:macro>
 
   <!-- Generates child joint of parent -->
-  <xacro:macro name="arm_joint" params="child parent dist:=0 axis">
+  <xacro:macro name="arm_joint" params="child parent dist upper lower:=0 axis">
 
     <joint name="${parent}_${child}_joint" type="revolute">
       <origin xyz="0 0 ${dist}" rpy="0 0 0"/>
@@ -89,8 +89,8 @@
       <axis xyz="${axis}"/>
       <limit effort="40.0"
              velocity="1.0"
-             lower="${-PI}"
-             upper="${PI}"/>
+             lower="${lower}"
+             upper="${upper}"/>
     </joint>
 
     <!-- Required for ROS control -->
@@ -142,11 +142,11 @@
   </joint>
 
   <!-- Joints Chain -->
-  <xacro:arm_joint parent="toe" child="foot" axis="0 0 1" dist="${toe_length}"/>
-  <xacro:arm_joint parent="foot" child="leg" axis="1 0 0" dist="${foot_length}"/>
-  <xacro:arm_joint parent="leg" child="arm" axis="1 0 0" dist="${leg_length}"/>
-  <xacro:arm_joint parent="arm" child="hand" axis="0 0 1" dist="${arm_length}"/>
-  <xacro:arm_joint parent="hand" child="finger" axis="1 0 0" dist="${hand_length}"/>
+  <xacro:arm_joint parent="toe" child="foot" axis="0 0 1" dist="${toe_length}" upper="${PI/2}" lower="${-PI/2}"/>
+  <xacro:arm_joint parent="foot" child="leg" axis="1 0 0" dist="${foot_length}" lower="${PI/6}" upper="${PI/3}"/>
+  <xacro:arm_joint parent="leg" child="arm" axis="1 0 0" dist="${leg_length}" lower="${PI/6}" upper="${PI/3}"/>
+  <xacro:arm_joint parent="arm" child="hand" axis="0 0 1" dist="${arm_length}" upper="${PI/2}" lower="${-PI/2}"/>
+  <xacro:arm_joint parent="hand" child="finger" axis="1 0 0" dist="${hand_length}" upper="${PI}" lower="${-PI}"/>
 
   <!-- End effector -->
   <link name="finger">
