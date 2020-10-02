@@ -155,7 +155,6 @@ def run_interactive(group_name):
          (level, msg) = c.execute(cmdorig)
          print_message(level, msg)
          completer.set_options(get_context_keywords(c))
-
         else:
          (level, msg) = c.execute(cmdorig)
          print_message(level, msg)
